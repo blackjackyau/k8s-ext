@@ -1,0 +1,4 @@
+logging:
+  level:
+    io.fabric8.kubernetes.client: DEBUG
+

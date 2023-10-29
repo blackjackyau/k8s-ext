@@ -1,0 +1,7 @@
+apiVersion: "com.blax.operator/v1"
+kind: AirCond
+metadata:
+  name: aircond-1
+spec:
+  temperature: 25
+  "on": true
