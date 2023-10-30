@@ -14,12 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @KubernetesDependent(labelSelector = "app.kubernetes.io/managed-by=air-cond-operator")
-public class ConfigMapDpendentResource
+public class ConfigMapDependentResource
     extends CRUDKubernetesDependentResource<ConfigMap, AirCond> {
 
-  private static final Logger log = LoggerFactory.getLogger(ConfigMapDpendentResource.class);
-
-  public ConfigMapDpendentResource() {
+  public ConfigMapDependentResource() {
     super(ConfigMap.class);
   }
 
@@ -27,7 +25,7 @@ public class ConfigMapDpendentResource
   protected ConfigMap desired(AirCond primary, Context<AirCond> context) {
     return new ConfigMapBuilder()
         .withMetadata(new ObjectMetaBuilder()
-            .withName(primary.getMetadata().getName() + "config")
+            .withName(primary.getMetadata().getName() + "-config")
             .withNamespace(primary.getMetadata().getNamespace())
             .build())
         .addToData(Map.of("spec", primary.getSpec().toString()))

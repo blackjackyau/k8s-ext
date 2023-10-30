@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,10 +12,10 @@ spec:
       labels:
         app: my-operator
     spec:
-      serviceAccountName: my-operator
+      serviceAccountName: operator-sa
       containers:
-      - name: operator
-        image: k8s-operator:0.0.1-SNAPSHOT
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 8080
+        - name: operator
+          image: docker.io/library/k8s-ext:0.0.1-SNAPSHOT
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080

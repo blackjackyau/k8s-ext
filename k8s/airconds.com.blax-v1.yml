@@ -2,15 +2,15 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: customservices.sample.javaoperatorsdk
+  name: airconds.com.blax
 spec:
-  group: sample.javaoperatorsdk
+  group: com.blax
   names:
-    kind: CustomService
-    plural: customservices
+    kind: AirCond
+    plural: airconds
     shortNames:
-    - cs
-    singular: customservice
+    - ac
+    singular: aircond
   scope: Namespaced
   versions:
   - name: v1
@@ -19,14 +19,19 @@ spec:
         properties:
           spec:
             properties:
-              label:
-                type: string
-              name:
-                type: string
+              temperature:
+                type: integer
+              "on":
+                type: boolean
+            required:
+            - temperature
+            - "on"
             type: object
           status:
             properties:
-              completed:
+              currentTemp:
+                type: integer
+              "on":
                 type: boolean
               observedGeneration:
                 type: integer

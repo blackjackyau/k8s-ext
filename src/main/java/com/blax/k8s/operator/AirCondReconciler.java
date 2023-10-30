@@ -16,11 +16,8 @@ import io.javaoperatorsdk.operator.api.reconciler.*;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.Dependent;
 
-/**
- * A very simple sample controller that creates a service with a label.
- */
 @ControllerConfiguration(dependents = {
-        @Dependent(name = "config", type = ConfigMapDpendentResource.class),
+        @Dependent(name = "config", type = ConfigMapDependentResource.class),
 },
         maxReconciliationInterval = @MaxReconciliationInterval(
                 interval = 30, timeUnit = TimeUnit.SECONDS)
@@ -50,9 +47,9 @@ public class AirCondReconciler implements Reconciler<AirCond> {
         AirCondSimulator airCondSim = airCondStores.get(resource.getMetadata().getName());
 
         if (airCondSim == null) {
-          airCondSim = new AirCondSimulator();
-          airCondSim.setName(resource.getMetadata().getName());
-          airCondStores.put(airCondSim.getName(), airCondSim);
+            airCondSim = new AirCondSimulator();
+            airCondSim.setName(resource.getMetadata().getName());
+            airCondStores.put(airCondSim.getName(), airCondSim);
         }
 
         airCondSim.setName(resource.getMetadata().getName());

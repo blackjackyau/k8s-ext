@@ -4,4 +4,4 @@ metadata:
   name: aircond-1
 spec:
   temperature: 25
-  "on": true
+  "on": false
