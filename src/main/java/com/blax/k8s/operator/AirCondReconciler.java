@@ -18,11 +18,11 @@ import io.javaoperatorsdk.operator.api.reconciler.dependent.Dependent;
 
 @ControllerConfiguration(dependents = {
         @Dependent(name = "config", type = ConfigMapDependentResource.class),
-},
-        maxReconciliationInterval = @MaxReconciliationInterval(
-                interval = 30, timeUnit = TimeUnit.SECONDS)
+}
+//        maxReconciliationInterval = @MaxReconciliationInterval(
+//                interval = 3000, timeUnit = TimeUnit.SECONDS)
 )
-public class AirCondReconciler implements Reconciler<AirCond> {
+public class AirCondReconciler implements Reconciler<AirCond>, Cleaner<AirCond> {
 
     private Map<String, AirCondSimulator> airCondStores = new HashMap<>();
 
@@ -41,35 +41,57 @@ public class AirCondReconciler implements Reconciler<AirCond> {
     @Override
     public UpdateControl<AirCond> reconcile(
             AirCond resource, Context<AirCond> context) {
+        AirCondStatus status = resource.getStatus();
 
-        final AirCondSpec spec = resource.getSpec();
+        if (status == null) {
+            status = new AirCondStatus();
+        }
+
+        long currentGeneration = resource.getMetadata().getGeneration();
+        long observedGeneration = resource.getStatus().getObservedGeneration();
         log.info("Reconciling: {}", resource.getMetadata().getName());
-        AirCondSimulator airCondSim = airCondStores.get(resource.getMetadata().getName());
+        log.info("current generation: {}", currentGeneration);
+        log.info("observe generation: {}", observedGeneration);
 
-        if (airCondSim == null) {
-            airCondSim = new AirCondSimulator();
+        if (currentGeneration != observedGeneration) {
+            final AirCondSpec spec = resource.getSpec();
+            AirCondSimulator airCondSim = airCondStores.get(resource.getMetadata().getName());
+
+            if (airCondSim == null) {
+                airCondSim = new AirCondSimulator();
+                airCondSim.setName(resource.getMetadata().getName());
+                airCondStores.put(airCondSim.getName(), airCondSim);
+            }
+
             airCondSim.setName(resource.getMetadata().getName());
-            airCondStores.put(airCondSim.getName(), airCondSim);
-        }
+            airCondSim.setOn(spec.isOn());
 
-        airCondSim.setName(resource.getMetadata().getName());
-        airCondSim.setOn(spec.isOn());
+            if (airCondSim.on) {
+                if (airCondSim.getTemperature() < spec.getTemperature()) {
+                    airCondSim.increaseTemp();
+                }
 
-        if (airCondSim.on) {
-            if (airCondSim.getTemperature() < spec.getTemperature()) {
-                airCondSim.increaseTemp();
+                if (airCondSim.getTemperature() > spec.getTemperature()) {
+                    airCondSim.decreaseTemp();
+                }
             }
 
-            if (airCondSim.getTemperature() > spec.getTemperature()) {
-                airCondSim.decreaseTemp();
-            }
+            status.setOn(airCondSim.isOn());
+            status.setCurrentTemp(airCondSim.getTemperature());
+
+            resource.setStatus(status);
+            // update discovery service database
+            return UpdateControl.updateStatus(resource);
+        } else {
+            return UpdateControl.noUpdate();
         }
+    }
 
-        AirCondStatus status = new AirCondStatus();
-        status.setOn(airCondSim.isOn());
-        status.setCurrentTemp(airCondSim.getTemperature());
-
-        resource.setStatus(status);
-        return UpdateControl.updateStatus(resource);
+    @Override
+    public DeleteControl cleanup(AirCond resource, Context<AirCond> context) {
+        String resourceName = resource.getMetadata().getName();
+        log.info("Cleaning up resource: {}", resourceName);
+        airCondStores.remove(resourceName);
+        return DeleteControl.defaultDelete();
     }
 }
