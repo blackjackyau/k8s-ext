@@ -27,3 +27,9 @@
 - create the aircond object in the operator-test ns. `kubectl apply -f aircond.yml`
 - you should see the Reconciling is kept kicking in every 30 seconds from the log.
 - navigate the `operator-test` namespace, observe the currentTemp under the AirCond object status, the temperature should go down every 30s until it reaches the desired temp. Notice the same applies to the configmap object.
+
+## Leader election using config map
+- Referencing https://medium.com/@pedrommj8/using-leader-election-with-spring-cloud-kubernetes-and-spring-scheduler-8f7ea3e3e694
+- On start up, each of the pod will be watching the config-map and the leader pod explicitly to detect any changes.
+- Example of Listen to leader pod `https://127.0.0.1:1310/api/v1/namespaces/default/pods?allowWatchBookmarks=true&fieldSelector=metadata.name%3Dkubernetes-leader-election-example-8569b4c8fb-jrbwd&watch=true`
+- ![leader election](./docs/leader-election.drawio.png)

@@ -10,17 +10,15 @@ import com.blax.k8s.operator.crd.AirCondStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.api.reconciler.*;
 import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.Dependent;
 
 @ControllerConfiguration(dependents = {
         @Dependent(name = "config", type = ConfigMapDependentResource.class),
-}
-//        maxReconciliationInterval = @MaxReconciliationInterval(
-//                interval = 3000, timeUnit = TimeUnit.SECONDS)
+        },
+        maxReconciliationInterval = @MaxReconciliationInterval(
+                interval = 3000, timeUnit = TimeUnit.SECONDS)
 )
 public class AirCondReconciler implements Reconciler<AirCond>, Cleaner<AirCond> {
 
@@ -28,14 +26,7 @@ public class AirCondReconciler implements Reconciler<AirCond>, Cleaner<AirCond> 
 
     private static final Logger log = LoggerFactory.getLogger(AirCondReconciler.class);
 
-    private final KubernetesClient kubernetesClient;
-
     public AirCondReconciler() {
-        this(new DefaultKubernetesClient());
-    }
-
-    public AirCondReconciler(KubernetesClient kubernetesClient) {
-        this.kubernetesClient = kubernetesClient;
     }
 
     @Override
@@ -80,7 +71,7 @@ public class AirCondReconciler implements Reconciler<AirCond>, Cleaner<AirCond> 
             status.setCurrentTemp(airCondSim.getTemperature());
 
             resource.setStatus(status);
-            // update discovery service database
+
             return UpdateControl.updateStatus(resource);
         } else {
             return UpdateControl.noUpdate();

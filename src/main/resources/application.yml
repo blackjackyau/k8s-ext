@@ -1,4 +1,15 @@
 logging:
   level:
     io.fabric8.kubernetes.client: DEBUG
-
+    org:
+      springframework:
+        cloud:
+          kubernetes:
+            fabric8:
+              leader: DEBUG
+spring:
+  cloud:
+    kubernetes:
+      leader:
+        config-map-name: myleader
+        role: blax
